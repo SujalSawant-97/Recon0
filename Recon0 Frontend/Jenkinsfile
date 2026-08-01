@@ -17,7 +17,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                dir('frontend') {
+                dir('Recon0 Frontend') {
                     bat 'npm install'
                 }
             }
@@ -25,7 +25,7 @@ pipeline {
 
         stage('Build React') {
             steps {
-                dir('frontend') {
+                dir('Recon0 Frontend') {
                     bat 'npm run build'
                 }
             }
@@ -33,7 +33,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                dir('frontend') {
+                dir('Recon0 Frontend') {
                     bat 'docker build -t %DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG% .'
                 }
             }
@@ -46,7 +46,7 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    dir('backend') {
+                    dir('Recon0 Frontend') {
                         bat '''
                         echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                         docker push %DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG%
