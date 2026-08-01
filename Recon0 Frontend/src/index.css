@@ -1,0 +1,20 @@
+/* 1. Import Tailwind's base, components, and utilities styles. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 2. Define global base styles for the application. */
+body {
+  /* Set the default font family to "Inter" */
+  font-family: 'Inter', sans-serif;
+
+  /* Set the main background color to our chosen slate shade */
+  background-color: #E2E8F0; /* Corresponds to bg-slate-200 */
+
+  /* Set the primary text color */
+  color: #0F172A; /* Corresponds to text-slate-900 */
+  
+  /* Apply anti-aliasing for smoother font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

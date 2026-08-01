@@ -1,0 +1,74 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_USERNAME = "sujal97"
+        APP_NAME = "recon0-frontend"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                dir('frontend') {
+                    bat 'npm install'
+                }
+            }
+        }
+
+        stage('Build React') {
+            steps {
+                dir('frontend') {
+                    bat 'npm run build'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('frontend') {
+                    bat 'docker build -t %DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG% .'
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withDockerRegistry(credentialsId: 'dockerhub') {
+                    dir('frontend') {
+                        bat 'docker push %DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG%'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Frontend image pushed successfully.'
+        }
+
+        failure {
+            echo 'Frontend build failed.'
+        }
+    }
+
+    /*stage('Deploy') {
+        steps {
+            sshagent(['ec2-key']) {
+                bat """
+                ssh -o StrictHostKeyChecking=no ubuntu@YOUR_EC2_IP ^
+                "kubectl set image deployment/recon0-frontend recon0-frontend=%DOCKER_USERNAME%/recon0-frontend:%IMAGE_TAG% && ^
+                kubectl rollout status deployment/recon0-frontend"
+                """
+            }
+        }*/
+    }
+}

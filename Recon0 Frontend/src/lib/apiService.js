@@ -1,0 +1,311 @@
+const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+// --- Token Management ---
+
+export const getToken = () => {
+    return localStorage.getItem('authToken');
+};
+
+export const setToken = (token) => {
+    localStorage.setItem('authToken', token);
+};
+
+export const removeToken = () => {
+    localStorage.removeItem('authToken');
+};
+
+// --- Core API Fetch Function ---
+
+const apiFetch = async (endpoint, options = {}) => {
+    const token = getToken();
+
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+    };
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error: ${response.status}`);
+    }
+
+    // If response has no content, return success, otherwise return JSON
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+        return response.json();
+    } else {
+        return { success: true };
+    }
+};
+
+// We will add specific functions like login, getProfile, etc. here later.
+
+// --- AUTH FUNCTIONS ---
+
+export const register = async (userData) => {
+    const result = await apiFetch('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+    });
+    // If registration is successful and we get a token, save it.
+    if (result.token) {
+        setToken(result.token);
+    }
+    return result;
+};
+export const login = async (credentials) => {
+    // credentials should be an object with { email, password }
+    const result = await apiFetch('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+    });
+
+    // If the login is successful and we get a token, save it.
+    if (result.token) {
+        setToken(result.token);
+    }
+    return result;
+};
+
+export const logout = () => {
+    // To log out, we just remove the token from storage.
+    removeToken();
+};
+
+
+// --- PROFILE FUNCTIONS ---
+
+export const getProfile = () => {
+    // Our core apiFetch function handles the auth header automatically
+    return apiFetch('/profile');
+};
+
+export const updateProfile = (profileData) => {
+    // profileData is an object with { fullName, username, bio }
+    return apiFetch('/profile', {
+        method: 'PUT',
+        body: JSON.stringify(profileData),
+    });
+};
+
+export const uploadAvatar = async (formData) => {
+    // File uploads are special and don't use the 'Content-Type': 'application/json' header,
+    // so we use a direct fetch call here. The browser sets the correct header automatically.
+    const token = getToken();
+    const headers = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/upload/avatar`, {
+        method: 'POST',
+        body: formData,
+        headers,
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error uploading file');
+    }
+    return response.json();
+};
+
+
+
+export const getStats = () => {
+    return apiFetch('/stats');
+};
+
+
+// --- PROGRAM FUNCTIONS ---
+
+export const getPrograms = () => {
+    return apiFetch('/programs');
+};
+
+export const getProgramById = (programId) => {
+    return apiFetch(`/programs/${programId}`);
+};
+
+
+// --- REPORT FUNCTIONS ---
+
+export const getMyReports = () => {
+    return apiFetch('/my-reports');
+};
+
+export const getReportById = (reportId) => {
+    return apiFetch(`/reports/${reportId}`);
+};
+
+export const submitReport = (reportData) => {
+    // reportData is { programId, title, severity, description, steps_to_reproduce, impact }
+    return apiFetch('/reports', {
+        method: 'POST',
+        body: JSON.stringify(reportData),
+    });
+};
+
+// --- ORGANIZATION FUNCTIONS ---
+
+export const getMyPrograms = () => {
+    return apiFetch('/organization/my-programs');
+};
+
+
+export const createProgram = (programData) => {
+    return apiFetch('/organization/my-programs', {
+        method: 'POST',
+        body: JSON.stringify(programData),
+    });
+};
+
+export const getOrgReports = () => {
+    return apiFetch('/organization/reports');
+};
+
+
+export const getOrgDashboard = () => {
+    return apiFetch('/organization/dashboard');
+};
+
+// --- TRIAGE FUNCTIONS ---
+
+export const updateReportStatus = (reportId, status) => {
+    return apiFetch(`/organization/reports/${reportId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+    });
+};
+
+export const getProgramAnalytics = (programId) => {
+    return apiFetch(`/organization/programs/${programId}/analytics`);
+};
+
+// --- COMMON FUNCTIONS ---
+
+export const getLeaderboard = () => {
+    return apiFetch('/leaderboard');
+};
+
+// --- NOTIFICATION FUNCTIONS ---
+
+export const getNotifications = () => {
+    return apiFetch('/notifications');
+};
+
+// --- ACHIEVEMENT FUNCTIONS ---
+
+export const getAllAchievements = () => {
+    return apiFetch('/achievements');
+};
+
+export const getMyAchievements = () => {
+    return apiFetch('/achievements/my');
+};
+
+export const uploadOrgLogo = (formData) => {
+    const token = getToken();
+    const headers = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return fetch(`${API_BASE_URL}/organization/upload/logo`, {
+        method: 'POST',
+        body: formData,
+        headers,
+    }).then(res => res.json());
+};
+
+
+// --- ATTACHMENT FUNCTIONS ---
+
+export const uploadAttachment = (formData) => {
+    // This is a special case that doesn't use the generic apiFetch,
+    // because the browser needs to set the 'Content-Type' header for FormData.
+    const token = getToken();
+    const headers = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return fetch(`${API_BASE_URL}/upload/attachment`, {
+        method: 'POST',
+        body: formData,
+        headers,
+    }).then(res => {
+        if (!res.ok) {
+            // Try to parse error JSON, otherwise throw generic error
+            return res.json().then(err => { throw new Error(err.message || 'File upload failed') });
+        }
+        return res.json();
+    });
+};
+
+
+export const getReportAttachments = (reportId) => {
+    return apiFetch(`/reports/${reportId}/attachments`);
+};
+
+
+// --- REPORT MESSAGING FUNCTIONS ---
+
+export const getReportMessages = (reportId) => {
+    return apiFetch(`/reports/${reportId}/messages`);
+};
+
+export const sendReportMessage = (reportId, messageData) => {
+    // messageData is { content, attachments }
+    return apiFetch(`/reports/${reportId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify(messageData),
+    });
+};
+
+
+// --- ADMIN FUNCTIONS ---
+
+export const getAllUsers = () => {
+    return apiFetch('/admin/users');
+};
+
+export const getPlatformAnalytics = () => {
+    return apiFetch('/admin/analytics');
+};
+
+export const updateUserStatus = (userId, status) => {
+    return apiFetch(`/admin/users/${userId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+    });
+};
+
+
+
+// --- AI FUNCTIONS ---
+
+export const enhanceReportWithAI = (reportText) => {
+    // reportText is { description, steps_to_reproduce, impact }
+    return apiFetch('/ai/enhance-report', {
+        method: 'POST',
+        body: JSON.stringify(reportText),
+    });
+};
+
+
+export const askChatbot = (question) => {
+    return apiFetch('/ai/chat', {
+        method: 'POST',
+        body: JSON.stringify({ question }),
+    });
+};

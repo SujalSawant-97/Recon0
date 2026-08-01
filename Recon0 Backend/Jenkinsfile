@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_USERNAME = "sujal97"
+        APP_NAME="recon0-backend"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Spring Boot') {
+            steps {
+                dir('Recon0 Backend') {
+                    bat 'mvnw.cmd clean package -DskipTests'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('Recon0 Backend') {
+                    bat 'docker build -t %DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG% .'
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withDockerRegistry(credentialsId: 'dockerhub') {
+                    dir('backend') {
+                        bat 'docker push %DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG%'
+                    }
+                }
+            }
+        }
+
+        /*stage('Deploy') {
+                    steps {
+                        sshagent(['ec2-key']) {
+                            bat """
+                            ssh -o StrictHostKeyChecking=no ubuntu@YOUR_EC2_IP ^
+                            "kubectl set image deployment/recon0-backend recon0-backend=%DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG% && ^
+                            kubectl rollout status deployment/recon0-backend"
+                            """
+                        }
+                    }
+        }*/
+    }
+}

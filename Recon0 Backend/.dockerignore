@@ -1,0 +1,11 @@
+target/*.original
+src
+.git
+.gitignore
+.idea
+.vscode
+.env
+.env.*
+Dockerfile
+Jenkinsfile
+README.md
