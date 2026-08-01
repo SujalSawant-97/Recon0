@@ -41,9 +41,17 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withDockerRegistry(credentialsId: 'dockerhub') {
-                    dir('frontend') {
-                        bat 'docker push %DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG%'
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    dir('backend') {
+                        bat '''
+                        echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                        docker push %DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG%
+                        docker logout
+                        '''
                     }
                 }
             }
