@@ -60,13 +60,20 @@ pipeline {
 
         stage('Deploy') {
             steps {
-
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'ec2-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) {
                     bat """
-                    ssh -i C:\\keys\\Recon0Key.pem -o StrictHostKeyChecking=no ubuntu@65.0.106.140 ^
-                    "kubectl set image deployment/recon0-frontend recon0-frontend=%DOCKER_USERNAME%/recon0-frontend:%IMAGE_TAG% && ^
-                    kubectl rollout status deployment/recon0-frontend"
+                    ssh -i "%SSH_KEY%" ^
+                    -o StrictHostKeyChecking=no ^
+                    %SSH_USER%@65.0.106.140 ^
+                    "kubectl set image deployment/recon0-frontend recon0-frontend=%DOCKER_USERNAME%/recon0-frontend:%IMAGE_TAG% && kubectl rollout status deployment/recon0-frontend"
                     """
-
+                }
             }
         }
 
