@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: recon0-backend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: recon0-backend
+
+  template:
+    metadata:
+      labels:
+        app: recon0-backend
+
+    spec:
+      containers:
+        - name: recon0-backend
+
+          image: sujal97/recon0-backend:6
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8080
+
+          envFrom:
+            - secretRef:
+                name: recon0-secret

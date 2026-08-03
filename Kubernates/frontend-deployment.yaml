@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: recon0-frontend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: recon0-frontend
+
+  template:
+    metadata:
+      labels:
+        app: recon0-frontend
+
+    spec:
+      containers:
+        - name: recon0-frontend
+
+          image: sujal97/recon0-frontend:3
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 80
