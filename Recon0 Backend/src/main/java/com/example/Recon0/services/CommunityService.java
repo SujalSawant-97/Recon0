@@ -7,6 +7,7 @@ import com.example.Recon0.models.UserAchievement;
 import com.example.Recon0.repositories.AchievementRepository;
 import com.example.Recon0.repositories.UserAchievementRepository;
 import com.example.Recon0.repositories.UserRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +36,7 @@ public class CommunityService {
 
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "leaderboard", key = "'top10'")
     public List<LeaderboardEntryDto> getLeaderboard() {
         // Fetch top 10 users by reputation points
         List<User> topUsers = userRepository.findAll(
@@ -52,6 +54,7 @@ public class CommunityService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "achievements", key = "'all'")
     public List<AchievementDto> getAllAchievements() {
         return achievementRepository.findAll().stream()
                 .map(AchievementDto::fromAchievement)

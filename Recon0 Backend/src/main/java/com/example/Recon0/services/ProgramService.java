@@ -29,7 +29,7 @@ public class ProgramService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(key="progbyid", value = "id")
+    @Cacheable(value = "program_details", key = "#id")
     public ProgramDetailDto getProgramDetails(UUID id) {
         return programRepository.findById(id)
                 .map(ProgramDetailDto::fromProgram)

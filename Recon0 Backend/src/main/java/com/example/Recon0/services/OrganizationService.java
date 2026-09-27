@@ -16,6 +16,7 @@ import com.example.Recon0.repositories.ReportRepository;
 import com.example.Recon0.repositories.UserRepository;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -61,6 +62,7 @@ public class OrganizationService {
 //    }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "org_dashboard", key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().getName()")
     public OrgDashboardDto getOrganizationDashboard() {
         User currentUser = getCurrentUser();
 
@@ -105,6 +107,7 @@ public class OrganizationService {
                 .build();
     }
     @Transactional(readOnly = true)
+    @Cacheable(value = "program_analytics", key = "#programId")
     public ProgramAnalyticsDto getProgramAnalytics(UUID programId) {
         User currentUser = getCurrentUser();
         Program program = programRepository.findById(programId)
@@ -139,7 +142,7 @@ public class OrganizationService {
     }
 
     @Transactional
-    @CacheEvict(value = "programs", allEntries = true)
+    @CacheEvict(value = {"programs", "org_my_programs", "org_dashboard"}, allEntries = true)
     public ProgramDto createProgram(CreateProgramRequest request) {
         User currentUser = getCurrentUser();
 //        Organization org = organizationRepository.findByOwnerId(currentUser.getId())
@@ -162,6 +165,7 @@ public class OrganizationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "org_my_programs", key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().getName()")
     public List<ProgramDto> getMyPrograms() {
         User organization = getCurrentUser();
         List<Program> programs = programRepository.findByOrganization(organization);
@@ -172,6 +176,7 @@ public class OrganizationService {
     }
 
     @Transactional
+    @CacheEvict(value = {"program_analytics", "org_dashboard", "leaderboard", "platform_analytics"}, allEntries = true)
     public ReportDto updateReportStatus(UUID reportId, UpdateReportStatusRequest request) {
         User currentUser = getCurrentUser();
         Report report = reportRepository.findById(reportId)

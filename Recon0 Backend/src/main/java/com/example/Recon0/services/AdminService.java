@@ -9,6 +9,8 @@ import com.example.Recon0.repositories.ProgramRepository;
 import com.example.Recon0.repositories.ReportRepository;
 import com.example.Recon0.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,7 @@ public class AdminService {
     private ProgramRepository programRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "admin_users", key = "'all'")
     public List<AdminUserDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(AdminUserDto::fromEntity)
@@ -38,6 +41,7 @@ public class AdminService {
     }
 
     @Transactional
+    @CacheEvict(value = {"admin_users", "platform_analytics"}, allEntries = true)
     public User updateUserStatus(UUID userId, UpdateUserStatusRequest request) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (currentUser.getId().equals(userId)) {
@@ -52,6 +56,7 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "platform_analytics", key = "'global'")
     public PlatformAnalyticsDto getPlatformAnalytics() {
         long totalUsers = userRepository.count();
         long totalHackers = userRepository.countByRole("hacker");

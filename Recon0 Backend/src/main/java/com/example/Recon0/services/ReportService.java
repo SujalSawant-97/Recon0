@@ -8,6 +8,7 @@ import com.example.Recon0.repositories.ProgramRepository;
 import com.example.Recon0.repositories.ReportAttachmentRepository;
 import com.example.Recon0.repositories.ReportRepository;
 import com.example.Recon0.repositories.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class ReportService {
     }
 
     @Transactional
+    @CacheEvict(value = {"org_dashboard", "program_analytics", "platform_analytics"}, allEntries = true)
     public ReportDetailDto submitReport(SubmitReportRequest request) {
         User currentUser = getCurrentUser();
         Program program = programRepository.findById(request.getProgramId())
