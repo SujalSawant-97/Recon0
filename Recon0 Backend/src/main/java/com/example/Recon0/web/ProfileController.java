@@ -40,13 +40,9 @@ public class ProfileController {
     @PutMapping("/profile")
     @Operation(summary = "To update user profile info ")
     public ResponseEntity<ApiResponse<ProfileDto>> updateCurrentUserProfile(@Valid @RequestBody UpdateProfileRequest request) {
-        try {
-            User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            ProfileDto updatedProfile = profileService.updateCurrentUserProfile(currentUser.getId(),request);
-            return ResponseEntity.ok(ApiResponse.success(updatedProfile));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ProfileDto updatedProfile = profileService.updateCurrentUserProfile(currentUser.getId(),request);
+        return ResponseEntity.ok(ApiResponse.success(updatedProfile));
     }
 
 

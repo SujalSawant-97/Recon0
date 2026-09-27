@@ -36,12 +36,8 @@ public class ProgramController {
     @GetMapping("/{id}")
     @Operation(summary = "To get program detail using program id")
     public ResponseEntity<ApiResponse<ProgramDetailDto>> getProgramDetails(@PathVariable UUID id) {
-        try {
-            ProgramDetailDto program = programService.getProgramDetails(id);
-            return ResponseEntity.ok(ApiResponse.success(program));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        ProgramDetailDto program = programService.getProgramDetails(id);
+        return ResponseEntity.ok(ApiResponse.success(program));
     }
 }
 
