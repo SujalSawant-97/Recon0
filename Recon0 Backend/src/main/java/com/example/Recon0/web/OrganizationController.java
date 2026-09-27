@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/organization")
 @Tag(name="Organization Api", description = "Dashboard, Analytics, Reports, Program")
-// Add @PreAuthorize("hasRole('organization')") at the class level
+@PreAuthorize("hasRole('ORGANIZATION')")
 public class OrganizationController {
 
     private final OrganizationService organizationService;
@@ -61,41 +62,29 @@ public class OrganizationController {
     @PatchMapping("/reports/{reportId}")
     @Operation(summary = "To update report status")
     public ResponseEntity<ApiResponse<ReportDto>> updateReportStatus(@PathVariable UUID reportId, @Valid @RequestBody UpdateReportStatusRequest request) {
-        try {
-            ReportDto updatedReport = organizationService.updateReportStatus(reportId, request);
-            return ResponseEntity.ok(ApiResponse.success(updatedReport));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
-
+        ReportDto updatedReport = organizationService.updateReportStatus(reportId, request);
+        return ResponseEntity.ok(ApiResponse.success(updatedReport));
     }
+
     @GetMapping("/reports")
     @Operation(summary = "To get reports for the organization")
     public ResponseEntity<ApiResponse<List<ReportDetailDto>>> getReport() {
-        try {
-            List<ReportDetailDto> reportDetails = reportService.getReport();
-            ApiResponse<List<ReportDetailDto>> response = ApiResponse.<List<ReportDetailDto>>builder()
-                    .success(true)
-                    .data(reportDetails)
-                    .build();
-            return ResponseEntity.ok(response);
-        }catch(RuntimeException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+        List<ReportDetailDto> reportDetails = reportService.getReport();
+        ApiResponse<List<ReportDetailDto>> response = ApiResponse.<List<ReportDetailDto>>builder()
+                .success(true)
+                .data(reportDetails)
+                .build();
+        return ResponseEntity.ok(response);
     }
+
     @GetMapping("/programs/{programId}/analytics")
     @Operation(summary = "To analyse the program")
     public ResponseEntity<ApiResponse<ProgramAnalyticsDto>> getProgramAnalytics(@PathVariable UUID programId) {
-        try{
-            ProgramAnalyticsDto analytics = organizationService.getProgramAnalytics(programId);
-
+        ProgramAnalyticsDto analytics = organizationService.getProgramAnalytics(programId);
         ApiResponse<ProgramAnalyticsDto> response = ApiResponse.<ProgramAnalyticsDto>builder()
                 .success(true)
                 .data(analytics)
                 .build();
         return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
     }
 }

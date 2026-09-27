@@ -29,7 +29,7 @@ public class AiController {
 
     @PostMapping("/enhance-report")
     @Operation(summary = "To enhance the report using gemini")
-    //@PreAuthorize("hasRole('HACKER')")
+    @PreAuthorize("hasRole('HACKER')")
     public Mono<ResponseEntity<ApiResponse<EnhanceReportResponse>>> enhanceReport(@RequestBody EnhanceReportRequest request) {
         return aiService.enhanceReport(request)
                 .map(enhancedReport -> ResponseEntity.ok(

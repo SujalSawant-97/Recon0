@@ -9,6 +9,7 @@ import com.example.Recon0.models.User;
 //import com.example.Recon0.repositories.OrganizationRepository;
 import com.example.Recon0.repositories.UserRepository;
 import com.example.Recon0.security.JwtUtil;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,12 +40,13 @@ public class AuthService {
     }
 
     @Transactional // Make this transactional to ensure both save or none do
+    @CacheEvict(value = {"admin_users", "platform_analytics"}, allEntries = true)
     public AuthResponse registerUser(RegisterRequest registerRequest) {
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
-            throw new RuntimeException("Email is already taken!");
+            throw new IllegalArgumentException("Email is already taken!");
         }
         if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
-            throw new RuntimeException("Username is already taken!");
+            throw new IllegalArgumentException("Username is already taken!");
         }
 
         User user = User.builder()

@@ -60,8 +60,15 @@ public class User implements UserDetails { // Implement the UserDetails interfac
        // @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
         // private List<Organization> organizations = new ArrayList<>();
 
-       public String  getDisplayName(){return this.username;}
-       // public setDisplayName(){this.username =username; }
+        public String getDisplayName() {
+                if (this.username != null && !this.username.isBlank()) {
+                        return this.username;
+                }
+                if (this.full_name != null && !this.full_name.isBlank()) {
+                        return this.full_name;
+                }
+                return (this.email != null && this.email.contains("@")) ? this.email.split("@")[0] : this.email;
+        }
 
         // --- Implementation of UserDetails methods ---
 

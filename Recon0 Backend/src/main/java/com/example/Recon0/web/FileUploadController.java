@@ -5,6 +5,7 @@ import com.example.Recon0.services.FileUploadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,8 +34,8 @@ public class FileUploadController {
 
     @PostMapping("/organization/upload/logo")
     @Operation(summary = "To upload the organization logo")
+    @PreAuthorize("hasRole('ORGANIZATION')")
     public ResponseEntity<FileUploadResponse> uploadOrgLogo(@RequestParam("file") MultipartFile file)throws IOException {
-        // Add @PreAuthorize("hasRole('organization')") for security
         FileUploadResponse response = fileUploadService.uploadFile(file, "logo");
         return ResponseEntity.ok(response);
     }

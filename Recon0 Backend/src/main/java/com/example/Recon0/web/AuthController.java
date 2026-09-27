@@ -32,7 +32,10 @@ public class AuthController {
             AuthResponse authResponse = authService.registerUser(registerRequest);
             return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new AuthResponse(false, "Email Already exist", null,null ));
+            return ResponseEntity.badRequest().body(new AuthResponse(false, e.getMessage(), null, null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse(false, "Registration failed: " + e.getMessage(), null, null));
         }
     }
 

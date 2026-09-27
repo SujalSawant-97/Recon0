@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,23 +31,18 @@ public class ReportController {
 
     @PostMapping("/reports")
     @Operation(summary = "To create the report")
+    @PreAuthorize("hasRole('HACKER')")
     public ResponseEntity<ApiResponse<ReportDto>> submitReport(@Valid @RequestBody SubmitReportRequest request) {
-        // Add @PreAuthorize("hasRole('hacker')") for security
-        try {
-            System.out.println(request);
-            ReportDto createdReport = reportService.submitReport(request);
-            return new ResponseEntity<>(ApiResponse.success(createdReport), HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+        ReportDto createdReport = reportService.submitReport(request);
+        return new ResponseEntity<>(ApiResponse.success(createdReport), HttpStatus.CREATED);
     }
 
     // The API contract has /my-reports, so we create a separate controller/endpoint for that
     // to avoid ambiguity with /reports/{id}
     @GetMapping("/my-reports")
     @Operation(summary = "To get the user reports")
+    @PreAuthorize("hasRole('HACKER')")
     public ResponseEntity<ApiResponse<List<ReportDto>>> getMyReports() {
-        // Add @PreAuthorize("hasRole('hacker')") for security
         List<ReportDto> reports = reportService.getMyReports();
         return ResponseEntity.ok(ApiResponse.success(reports));
     }

@@ -1,6 +1,7 @@
 package com.example.Recon0.dto.admin;
 
 import com.example.Recon0.models.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,16 +17,20 @@ public class AdminUserDto {
     private int reputationPoints;
     private String createdAt;
 
+    @JsonProperty("avatar_url")
+    private String avatar_url;
+
     public static AdminUserDto fromEntity(User user) {
         return AdminUserDto.builder()
-                .id(user.getId().toString())
-                .username(user.getUsername())
+                .id(user.getId() != null ? user.getId().toString() : null)
+                .username(user.getDisplayName())
                 .fullName(user.getFull_name())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .status(user.getStatus())
                 .reputationPoints(user.getReputationPoints())
-                .createdAt(user.getCreated_at().toString())
+                .createdAt(user.getCreated_at() != null ? user.getCreated_at().toString() : null)
+                .avatar_url(user.getAvatar_url())
                 .build();
     }
 }

@@ -119,7 +119,7 @@ const UserManagementPage = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm"><RoleBadge role={user.role} /></td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm"><StatusBadge status={user.status} /></td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        {user.role !== 'admin' && (
+                                        {(user.role || '').toLowerCase() !== 'admin' && (
                                             <button 
                                                 className={`flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-semibold transition-colors disabled:opacity-50 ${
                                                     user.status === 'Active' 
