@@ -68,6 +68,7 @@ pipeline {
                     )
                 ]) {
                     bat """
+                    icacls "%SSH_KEY%" /inheritance:r /grant:r "%USERNAME%:R"
                     ssh -i "%SSH_KEY%" ^
                     -o StrictHostKeyChecking=no ^
                     %SSH_USER%@65.0.106.140 ^
