@@ -38,7 +38,7 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    dir('backend') {
+                    dir('Recon0 Backend') {
                         bat '''
                         echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                         docker push %DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG%
@@ -49,16 +49,32 @@ pipeline {
             }
         }
 
-        /*stage('Deploy') {
-                    steps {
-                        sshagent(['ec2-key']) {
-                            bat """
-                            ssh -o StrictHostKeyChecking=no ubuntu@YOUR_EC2_IP ^
-                            "kubectl set image deployment/recon0-backend recon0-backend=%DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG% && ^
-                            kubectl rollout status deployment/recon0-backend"
-                            """
-                        }
-                    }
-        }*/
+        stage('Deploy') {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'ec2-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) {
+                    bat """
+                    ssh -i "%SSH_KEY%" ^
+                    -o StrictHostKeyChecking=no ^
+                    %SSH_USER%@65.0.106.140 ^
+                    "sudo kubectl set image deployment/recon0-backend recon0-backend=%DOCKER_USERNAME%/%APP_NAME%:%IMAGE_TAG% && sudo kubectl rollout status deployment/recon0-backend"
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Backend deployed successfully.'
+        }
+        failure {
+            echo 'Backend deployment failed.'
+        }
     }
 }
