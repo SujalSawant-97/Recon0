@@ -4,25 +4,29 @@ import { getPrograms } from '/src/lib/apiService.js';
 import { DollarSign, Search, Target, Briefcase } from 'lucide-react';
 
 // A single Program Card component
-const ProgramCard = ({ program }) => (
-    <Link 
-        to={`/programs/${program.id}`} 
-        className="block bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
-    >
-        <div className="flex items-center gap-4 mb-4">
-            <img 
-                src={program.org_logo_url || `https://placehold.co/48x48/E2E8F0/475569?text=${program.org_name.charAt(0)}`} 
-                alt={`${program.org_name} logo`}
-                className="w-12 h-12 rounded-full object-cover border-2 border-slate-200"
-            />
-            <div>
-                <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{program.title}</h3>
-                <p className="text-sm text-slate-500 flex items-center gap-1.5">
-                    <Briefcase size={14} />
-                    {program.org_name}
-                </p>
+const ProgramCard = ({ program }) => {
+    const orgName = program.org_name || 'Organization';
+    const initial = (orgName.charAt(0) || 'O').toUpperCase();
+
+    return (
+        <Link 
+            to={`/programs/${program.id}`} 
+            className="block bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+        >
+            <div className="flex items-center gap-4 mb-4">
+                <img 
+                    src={program.org_logo_url || `https://placehold.co/48x48/E2E8F0/475569?text=${initial}`} 
+                    alt={`${orgName} logo`}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-slate-200"
+                />
+                <div>
+                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{program.title}</h3>
+                    <p className="text-sm text-slate-500 flex items-center gap-1.5">
+                        <Briefcase size={14} />
+                        {orgName}
+                    </p>
+                </div>
             </div>
-        </div>
 
         {/* Dummy Tags for visual appeal */}
         <div className="flex flex-wrap gap-2 mb-4">
@@ -42,7 +46,8 @@ const ProgramCard = ({ program }) => (
             </div>
         </div>
     </Link>
-);
+    );
+};
 
 
 const ProgramsPage = () => {

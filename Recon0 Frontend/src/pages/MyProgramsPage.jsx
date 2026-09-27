@@ -4,22 +4,26 @@ import { getMyPrograms } from '/src/lib/apiService.js';
 import { PlusCircle, Briefcase, BarChart2, Inbox, ArrowUpRight } from 'lucide-react';
 
 // A single Program Card component for the organization view
-const ProgramCard = ({ program }) => (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-        <div className="p-6 flex-grow">
-            <div className="flex items-start gap-4">
-                <img 
-                    src={program.org_logo_url || `https://placehold.co/48x48/E2E8F0/475569?text=${program.org_name.charAt(0)}`} 
-                    alt={`${program.org_name} logo`}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-slate-200"
-                />
-                <div>
-                    <h3 className="text-lg font-bold text-slate-800">{program.title}</h3>
-                    <p className="text-sm text-slate-500">
-                        Bounty: ${program.min_bounty?.toLocaleString()} - ${program.max_bounty?.toLocaleString()}
-                    </p>
+const ProgramCard = ({ program }) => {
+    const orgName = program.org_name || 'Organization';
+    const initial = (orgName.charAt(0) || 'O').toUpperCase();
+
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+            <div className="p-6 flex-grow">
+                <div className="flex items-start gap-4">
+                    <img 
+                        src={program.org_logo_url || `https://placehold.co/48x48/E2E8F0/475569?text=${initial}`} 
+                        alt={`${orgName} logo`}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-slate-200"
+                    />
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-800">{program.title}</h3>
+                        <p className="text-sm text-slate-500">
+                            Bounty: ${program.min_bounty?.toLocaleString()} - ${program.max_bounty?.toLocaleString()}
+                        </p>
+                    </div>
                 </div>
-            </div>
             {/* Dummy Stats for Demonstration */}
             <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                 <div className="bg-slate-50 p-3 rounded-lg">
@@ -43,7 +47,8 @@ const ProgramCard = ({ program }) => (
             </Link>
         </div>
     </div>
-);
+    );
+};
 
 const MyProgramsPage = () => {
     const [programs, setPrograms] = useState([]);

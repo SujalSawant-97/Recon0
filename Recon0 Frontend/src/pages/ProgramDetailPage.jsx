@@ -64,6 +64,9 @@ const ProgramDetailPage = () => {
         { severity: 'Low', bounty: program.min_bounty },
     ];
 
+    const orgName = program.org_name || 'Organization';
+    const initial = (orgName.charAt(0) || 'O').toUpperCase();
+
     return (
         <div className="space-y-6">
             <Link to="/programs" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:underline">
@@ -75,15 +78,15 @@ const ProgramDetailPage = () => {
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between md:items-center gap-4">
                 <div className="flex items-center gap-4">
                     <img 
-                        src={program.org_logo_url || `https://placehold.co/64x64/E2E8F0/475569?text=${program.org_name.charAt(0)}`} 
-                        alt={`${program.org_name} logo`}
+                        src={program.org_logo_url || `https://placehold.co/64x64/E2E8F0/475569?text=${initial}`} 
+                        alt={`${orgName} logo`}
                         className="w-16 h-16 rounded-full object-cover border-2 border-slate-200"
                     />
                     <div>
                         <h1 className="text-3xl font-bold text-slate-800">{program.title}</h1>
                         <p className="text-slate-500 flex items-center gap-1.5">
                             <Briefcase size={14} />
-                            Hosted by {program.org_name}
+                            Hosted by {orgName}
                         </p>
                     </div>
                 </div>

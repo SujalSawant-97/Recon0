@@ -23,13 +23,31 @@ public class ProgramDto implements Serializable {
         }
         ProgramDto dto = new ProgramDto();
         dto.setId(program.getId());
-        dto.setOrganization_id(program.getOrganization_id().getId());
-        dto.setOrg_name(program.getOrganization_id().getFull_name());
+        String orgName = null;
+        String orgLogoUrl = null;
+        if (program.getOrganization_id() != null) {
+            dto.setOrganization_id(program.getOrganization_id().getId());
+            orgName = program.getOrganization_id().getFull_name();
+            if (orgName == null || orgName.isBlank()) {
+                orgName = program.getOrganization_id().getDisplayName();
+            }
+            if (orgName == null || orgName.isBlank()) {
+                orgName = program.getOrganization_id().getUsername();
+            }
+            orgLogoUrl = program.getOrganization_id().getAvatar_url();
+        }
+        if (orgName == null || orgName.isBlank()) {
+            orgName = program.getOrg_name();
+        }
+        if (orgName == null || orgName.isBlank()) {
+            orgName = "Organization";
+        }
+        dto.setOrg_name(orgName);
+        dto.setOrg_logo_url(orgLogoUrl);
         dto.setTitle(program.getTitle());
         dto.setMin_bounty(program.getMin_bounty());
         dto.setMax_bounty(program.getMax_bounty());
         dto.setTags(program.getTags());
-        //dto.setOrgLogoUrl(program.getOrganization().getLogoUrl());
         return dto;
     }
 }
