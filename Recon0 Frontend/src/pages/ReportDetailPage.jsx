@@ -41,10 +41,14 @@ const SeverityIndicator = ({ severity }) => {
 
 // Enhanced Attachment Display Component
 const AttachmentCard = ({ attachment, size = "md" }) => {
-    const isImage = attachment.file_type?.startsWith("image/");
-    const isVideo = attachment.file_type?.startsWith("video/");
-    const isPdf = attachment.file_type?.includes("pdf");
-    const isArchive = attachment.file_type?.includes("zip") || attachment.file_type?.includes("rar");
+    const fileUrl = attachment.file_url || attachment.url || "#";
+    const fileName = attachment.file_name || attachment.name || "Attachment";
+    const fileType = attachment.file_type || attachment.type || "";
+
+    const isImage = fileType.startsWith("image/");
+    const isVideo = fileType.startsWith("video/");
+    const isPdf = fileType.includes("pdf");
+    const isArchive = fileType.includes("zip") || fileType.includes("rar");
     
     const getFileIcon = () => {
         if (isImage) return <ImageIcon size={size === "sm" ? 16 : 20} className="text-blue-500" />;
@@ -64,7 +68,7 @@ const AttachmentCard = ({ attachment, size = "md" }) => {
 
     return (
         <a 
-            href={attachment.file_url} 
+            href={fileUrl} 
             target="_blank" 
             rel="noopener noreferrer" 
             className={`block bg-gradient-to-br ${getFileTypeColor()} p-4 rounded-xl border transition-all duration-200 hover:shadow-md group`}
@@ -75,10 +79,10 @@ const AttachmentCard = ({ attachment, size = "md" }) => {
                 </div>
                 <div className="flex-1 min-w-0">
                     <p className={`font-semibold text-slate-900 truncate ${size === "sm" ? "text-sm" : ""}`}>
-                        {attachment.file_name}
+                        {fileName}
                     </p>
                     <p className={`text-slate-600 ${size === "sm" ? "text-xs" : "text-sm"}`}>
-                        {attachment.file_type?.split('/')[1]?.toUpperCase() || 'File'}
+                        {fileType.split('/')[1]?.toUpperCase() || 'File'}
                     </p>
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -316,11 +320,11 @@ const ReportDetailPage = () => {
                         <div className="p-6 space-y-6">
                             {messages.length > 0 ? messages.map(msg => (
                                 <div key={msg.id} className="flex gap-4">
-                                     <img src={msg.sender_avatar_url || `https://placehold.co/40x40/E2E8F0/475569?text=${(msg.sender_username || '?').charAt(0)}`} alt="avatar" className="w-10 h-10 rounded-full" />
+                                     <img src={msg.sender_avatar_url || `https://placehold.co/40x40/E2E8F0/475569?text=${(msg.sender_username || '?').charAt(0).toUpperCase()}`} alt="avatar" className="w-10 h-10 rounded-full" />
                                     <div className="flex-1">
                                         <div className="flex justify-between items-baseline">
                                             <p className="font-semibold text-slate-900">{msg.sender_username || 'Unknown User'}</p>
-                                            <p className="text-xs text-slate-500">{new Date(msg.created_at).toLocaleString()}</p>
+                                            <p className="text-xs text-slate-500">{(msg.created_at || msg.createdAt) ? new Date(msg.created_at || msg.createdAt).toLocaleString() : 'Just now'}</p>
                                         </div>
                                         <div className="prose prose-sm max-w-none text-slate-600 mt-1"><p>{msg.content}</p></div>
                                         

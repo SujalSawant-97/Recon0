@@ -50,10 +50,10 @@ const NotificationsPage = () => {
         fetchNotifications();
     }, []);
     
-    // This logic remains unchanged. It updates the local state to reflect the change instantly.
+    // Updates the local state to reflect the change instantly.
     const handleMarkAsRead = (id) => {
         setNotifications(notifications.map(n => 
-            n.id === id ? { ...n, is_read: true } : n
+            n.id === id ? { ...n, is_read: true, isRead: true } : n
         ));
     };
 
@@ -74,20 +74,24 @@ const NotificationsPage = () => {
             <div className="divide-y divide-slate-200">
                 {notifications.map((notification) => {
                     const { Icon, color } = notificationVisuals[notification.type] || notificationVisuals.default;
+                    const isRead = Boolean(notification.is_read ?? notification.isRead ?? false);
+                    const createdAtRaw = notification.created_at || notification.createdAt;
+                    const formattedDate = createdAtRaw ? new Date(createdAtRaw).toLocaleString() : 'Recent';
+
                     return (
                         <div 
                             key={notification.id} 
-                            className={`p-4 flex items-start gap-4 transition-colors ${!notification.is_read ? 'bg-blue-50/50 hover:bg-slate-50 cursor-pointer' : 'hover:bg-slate-50'}`}
-                            onClick={() => !notification.is_read && handleMarkAsRead(notification.id)}
+                            className={`p-4 flex items-start gap-4 transition-colors ${!isRead ? 'bg-blue-50/50 hover:bg-slate-50 cursor-pointer' : 'hover:bg-slate-50'}`}
+                            onClick={() => !isRead && handleMarkAsRead(notification.id)}
                         >
                             <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${color}`}>
                                 <Icon size={20} />
                             </div>
                             <div className="flex-grow">
                                 <p className="text-sm text-slate-800">{notification.message}</p>
-                                <small className="text-xs text-slate-400">{new Date(notification.created_at).toLocaleString()}</small>
+                                <small className="text-xs text-slate-400">{formattedDate}</small>
                             </div>
-                            {!notification.is_read && (
+                            {!isRead && (
                                 <div className="flex-shrink-0 w-2.5 h-2.5 bg-blue-500 rounded-full mt-1.5"></div>
                             )}
                         </div>
