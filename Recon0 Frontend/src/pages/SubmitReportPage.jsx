@@ -113,15 +113,19 @@ const SubmitReportPage = () => {
             if (result.success) {
                 // Add a small delay for better UX
                 setTimeout(() => {
-                    setDescription(result.data.description);
-                    setStepsToReproduce(result.data.steps_to_reproduce);
-                    setImpact(result.data.impact);
+                    const enhancedDesc = result.data.description || originalData.description;
+                    const enhancedSteps = result.data.steps_to_reproduce || result.data.stepsToReproduce || originalData.stepsToReproduce;
+                    const enhancedImpact = result.data.impact || originalData.impact;
+
+                    setDescription(enhancedDesc);
+                    setStepsToReproduce(enhancedSteps);
+                    setImpact(enhancedImpact);
                     
                     // Mark fields as enhanced
                     setEnhancedFields({
-                        description: result.data.description !== originalData.description,
-                        stepsToReproduce: result.data.steps_to_reproduce !== originalData.stepsToReproduce,
-                        impact: result.data.impact !== originalData.impact
+                        description: enhancedDesc !== originalData.description,
+                        stepsToReproduce: enhancedSteps !== originalData.stepsToReproduce,
+                        impact: enhancedImpact !== originalData.impact
                     });
                     
                     setIsEnhanced(true);
